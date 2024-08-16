@@ -16,7 +16,7 @@ namespace PlanetProtector
         private bool _gameOver;
         private Timer _asteroidTimer;
         private Background _background;
-        private AsteroidSpawning _asteroidSpawning;
+        private AsteroidSpawning _asteroidSpawningCopy;
 
         // Constructor
         public Game(Window gameWindow)
@@ -171,7 +171,7 @@ namespace PlanetProtector
 
             try
             {
-                List<Asteroid> newAsteroids = _asteroidSpawning.SpawnAsteroids(_asteroids, _gameWindow, _gameTimer);
+                List<Asteroid> newAsteroids = _asteroidSpawningCopy.SpawnAsteroids(_asteroids, _gameWindow, _gameTimer);
                 if (newAsteroids.Count() > 0)
                 {
                     _asteroids.Concat(newAsteroids);

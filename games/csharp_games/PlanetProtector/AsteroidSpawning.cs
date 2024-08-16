@@ -24,6 +24,7 @@ namespace PlanetProtector
         private float _initialSpawnTime = 10000f; // Time at which spawn rate starts increasing (in milliseconds)
         private float _nextWaveThreshold = 30000f; // Time after which waves become more frequent and asteroids harder to avoid
         private float _waveDelayAccelerationRate = 5000f; // Rate at which the interval between waves increases
+        private bool _waveHappening = false;
 
         // BLANK CONSTRUCTOR
         AsteroidSpawning() { }
@@ -31,36 +32,47 @@ namespace PlanetProtector
         private List<float> GenerateIntervals(int numAsteroids)
         {
             List<float> intervals = new List<float>();
-            float lastIntervalEnd = 0;
+            float lastIntervalEnd = 0; // Start at 0
             for (int i = 0; i < numAsteroids; i++)
             {
+                // Generate a random interval based on the base interval and variance
                 float intervalDuration = _baseInterval + SplashKit.Rnd((int)-_intervalVariance / 2, (int)_intervalVariance / 2);
-                intervals.Add(lastIntervalEnd + intervalDuration);
-                lastIntervalEnd += intervalDuration;
+                intervals.Add(lastIntervalEnd + intervalDuration); // last interval calculated plus this new interval
+                lastIntervalEnd += intervalDuration; // add the most recent duration for next iteration
             }
             return intervals;
         }
 
         // PUBLIC METHODS
 
-        public List<Asteroid> SpawnAsteroids(List<Asteroid> asteroids, Window gameWindow, Timer gameTimer)
+        public List<Asteroid> SpawnAsteroids(List<Asteroid> asteroids, Window gameWindow, Timer gameTimer, Timer asteroidTimer)
         {
             List<Asteroid> newAsteroids = new List<Asteroid>();
 
             float elapsedTime = (float)gameTimer.Ticks / 1000; // Convert ticks to seconds for easier handling
 
             // Calculate current spawn rate
+            // spawn rate is a function of time and difficulty level
+            // it is the minimum of either the max asteroids or the initial spawn rate multiplied by the spawn rate multiplier raised to the power of elapsed time
+            // this rate is then the number of asteroids to spawn in this wave
             float currentRate = MathF.Min(_maxAsteroids, _initialSpawnRate * MathF.Pow(_spawnRateMultiplier, elapsedTime));
             int numAsteroidsToSpawn = SplashKit.Rnd(1, (int)currentRate);
 
             // Generate intervals for spawning these asteroids
             List<float> intervals = GenerateIntervals(numAsteroidsToSpawn);
 
-            // Spawn asteroids at these times
-            foreach (var interval in intervals)
+            // If there's still available asteroids to spawn
+            if (asteroids.Count() < _maxAsteroids)
             {
-                if (asteroids.Count() < _maxAsteroids)
+                if
+                (
+                    // If the asteroid timer has passed the next interval
+                    asteroidTimer.Ticks > intervals.Last()
+                )
                 {
+                    // Reset the timer
+                    asteroidTimer.Reset();
+                    // Spawn a new asteroid
                     int spawnX = SplashKit.Rnd(0, gameWindow.Width * 2); // Spawn randomly within the game window width
                     newAsteroids.Add(new Asteroid(spawnX, -10)); // Adjust the y-coordinate as needed to simulate falling asteroids
                 }
