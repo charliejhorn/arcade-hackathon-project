@@ -33,3 +33,6 @@
 
 # splashkit log
 games/csharp_games/PlanetProtector/logs/splashkit.log
+
+# Mac OS X Finder
+.DS_Store
