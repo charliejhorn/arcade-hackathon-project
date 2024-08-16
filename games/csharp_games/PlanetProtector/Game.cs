@@ -1,4 +1,5 @@
 ﻿using SplashKitSDK;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -15,6 +16,7 @@ namespace PlanetProtector
         private bool _gameOver;
         private Timer _asteroidTimer;
         private Background _background;
+        private AsteroidSpawning _asteroidSpawning;
 
         // Constructor
         public Game(Window gameWindow)
@@ -148,20 +150,39 @@ namespace PlanetProtector
             }
         }
 
-        // Spawn asteroids
+        // Spawn asteroidsasteroids
         private void _SpawnAsteroids()
         {
             /* 
                 want to adjust this so it spawns more randomly. 
                 e.g. after 1s it's possible to spawn again, but the likelihood gets increased until it's certain at about 5s
              */
-            if (_asteroidTimer.Ticks > 1000 || _asteroids.Count == 0) // spawn an asteroid every 10 seconds or if there are no asteroids   
+
+            // ORIGINAL CODE
+            /* if (_asteroidTimer.Ticks > 1000 || _asteroids.Count == 0) // spawn an asteroid every 10 seconds or if there are no asteroids   
             {
                 _asteroidTimer.Reset();
                 // not sure why but _gameWindow.Width is 800, which should be the entire width of the screen but is only half
                 int newAsteroidX = SplashKit.Rnd(_gameWindow.Width * 2);
                 _asteroids.Add(new Asteroid(newAsteroidX, -10));
+            } */
+
+            // IMPROVED ALGORITHM
+
+            try
+            {
+                List<Asteroid> newAsteroids = _asteroidSpawning.SpawnAsteroids(_asteroids, _gameWindow, _gameTimer);
+                if (newAsteroids.Count() > 0)
+                {
+                    _asteroids.Concat(newAsteroids);
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                _gameOver = true;
+            }
+
         }
 
         // Delete asteroids
@@ -175,12 +196,6 @@ namespace PlanetProtector
                     SplashKit.FreeSprite(asteroid.Sprite);
                 }
             }
-        }
-
-        private void _UpdateScore()
-        {
-            double newScore = _gameTimer.Ticks / 1000 + (_player.Score * 10);
-            _player.SetScore(newScore);
         }
 
         /**
@@ -249,7 +264,7 @@ namespace PlanetProtector
 
                 _DeleteAsteroids();
 
-                _UpdateScore();
+                _player.UpdateScore(_gameTimer);
 
                 _background.Update();
             }

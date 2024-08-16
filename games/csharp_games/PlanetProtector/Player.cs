@@ -1,4 +1,5 @@
 ﻿using SplashKitSDK;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -45,7 +46,7 @@ namespace PlanetProtector
 
             _health = new bool[] { true, true, true, true, true }; // start off with 5 hearts
 
-            _meteorsDestroyed = 0;
+            _asteroidsDestroyed = 0;
             _score = 0;
         }
 
@@ -74,11 +75,11 @@ namespace PlanetProtector
             }
         }
 
-        public int MeteorsDestroyed
+        public int AsteroidsDestroyed
         {
             get
             {
-                return _meteorsDestroyed;
+                return _asteroidsDestroyed;
             }
         }
 
@@ -132,8 +133,11 @@ namespace PlanetProtector
 
         }
 
-        public void SetScore(double newScore)
+        public void UpdateScore(Timer gameTimer)
         {
+            double newScore = (double)gameTimer.Ticks / 1000;
+            newScore += _asteroidsDestroyed * 10;
+
             _score = newScore;
         }
 
