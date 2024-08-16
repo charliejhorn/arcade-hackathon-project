@@ -27,7 +27,7 @@ namespace PlanetProtector
         private bool _waveHappening = false;
 
         // BLANK CONSTRUCTOR
-        AsteroidSpawning() { }
+        public AsteroidSpawning() { }
 
         private List<float> GenerateIntervals(int numAsteroids)
         {

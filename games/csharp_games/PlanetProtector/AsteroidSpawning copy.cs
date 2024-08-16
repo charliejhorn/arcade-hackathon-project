@@ -41,7 +41,7 @@ namespace PlanetProtector
 
 
         // CONSTRUCTOR
-        AsteroidSpawningCopy() 
+        public AsteroidSpawningCopy() 
         {
             _waveTimer = new Timer("WaveTimer");
             _waveTimer.Start();
@@ -65,11 +65,6 @@ namespace PlanetProtector
                 GenerateNewWave(gameTimer);
             }
 
-            if(_waveHappening)
-            {
-                SpawnAsteroids(asteroids, gameWindow, gameTimer);
-            }
-
             // If the wave is over (all intervals have been 'used')
             if (_currentIntervalIndex >= _intervals.Count)
             {
@@ -77,6 +72,25 @@ namespace PlanetProtector
                 _asteroidInterval *= _asteroidIntervalDecreaseFactor; // Decrease the interval between asteroids
                 _maxAsteroids *= _maxAsteroidsGrowthRate; // set new max asteroids
             }
+        }
+
+        public bool AsteroidToSpawn(List<Asteroid> asteroids)
+        {
+            /* 
+                need to address what to do if maxAsteroids is reached
+            */
+
+            if 
+            (
+                _waveHappening
+                && asteroids.Count() < _maxAsteroids // If there's still available asteroids to spawn
+                && _asteroidTimer.Ticks > _intervals[_currentIntervalIndex] // If the asteroid timer has passed the next interval
+            )
+            {
+                return true;
+            }
+
+            return false;
         }
 
 
@@ -99,26 +113,17 @@ namespace PlanetProtector
         }
 
 
-        private List<Asteroid> SpawnAsteroids(List<Asteroid> asteroids, Window gameWindow, Timer gameTimer)
+        public Asteroid SpawnAsteroid(Window gameWindow)
         {
-            List<Asteroid> newAsteroids = new List<Asteroid>();
 
-            
-            if 
-            (
-                asteroids.Count() < _maxAsteroids // If there's still available asteroids to spawn
-                && _asteroidTimer.Ticks > _intervals[_currentIntervalIndex] // If the asteroid timer has passed the next interval
-            )
-            {
-                _asteroidTimer.Reset(); // Reset the timer
-                _currentIntervalIndex++; // Move to the next interval
+            _asteroidTimer.Reset(); // Reset the timer
+            _currentIntervalIndex++; // Move to the next interval
 
-                // Spawn a new asteroid
-                int spawnX = SplashKit.Rnd(0, gameWindow.Width * 2); // Spawn randomly within the game window width
-                newAsteroids.Add(new Asteroid(spawnX, -10)); // Adjust the y-coordinate as needed to simulate falling asteroids
-            }
+            // Spawn a new asteroid
+            int spawnX = SplashKit.Rnd(0, gameWindow.Width * 2); // Spawn randomly within the game window width
+            Asteroid newAsteroid = new Asteroid(spawnX, -10); // Adjust the y-coordinate as needed to simulate falling asteroids
 
-            return newAsteroids;
+            return newAsteroid;
         }
 
 

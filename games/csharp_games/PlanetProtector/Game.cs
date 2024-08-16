@@ -16,7 +16,7 @@ namespace PlanetProtector
         private bool _gameOver;
         private Timer _asteroidTimer;
         private Background _background;
-        private AsteroidSpawning _asteroidSpawningCopy;
+        private AsteroidSpawningCopy _asteroidSpawningCopy;
 
         // Constructor
         public Game(Window gameWindow)
@@ -38,6 +38,7 @@ namespace PlanetProtector
             _asteroidTimer.Start();
 
             _background = new Background();
+            _asteroidSpawningCopy = new AsteroidSpawningCopy();
         }
 
         /**
@@ -151,7 +152,7 @@ namespace PlanetProtector
         }
 
         // Spawn asteroidsasteroids
-        private void _SpawnAsteroids()
+        private void _SpawnAsteroid()
         {
             /* 
                 want to adjust this so it spawns more randomly. 
@@ -171,11 +172,8 @@ namespace PlanetProtector
 
             try
             {
-                List<Asteroid> newAsteroids = _asteroidSpawningCopy.SpawnAsteroids(_asteroids, _gameWindow, _gameTimer);
-                if (newAsteroids.Count() > 0)
-                {
-                    _asteroids.Concat(newAsteroids);
-                }
+                _asteroids.Add( _asteroidSpawningCopy.SpawnAsteroid(_gameWindow) );
+                
             }
             catch (Exception e)
             {
@@ -258,7 +256,12 @@ namespace PlanetProtector
                     asteroid.Update();
                 }
 
-                _SpawnAsteroids();
+                _asteroidSpawningCopy.Update(_asteroids, _gameWindow, _gameTimer);
+
+                if(_asteroidSpawningCopy.AsteroidToSpawn(_asteroids))
+                {
+                    _SpawnAsteroid();
+                }
 
                 _CheckCollisions();
 
